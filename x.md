@@ -1043,7 +1043,7 @@ cp -r ./usr/* /usr/
 ### 上网配置  
 step 1 :  
 [~]# cat /etc/network/interfaces  
-# interfaces(5) file used by ifup(8) and ifdown(8)  
+\# interfaces(5) file used by ifup(8) and ifdown(8)  
 auto eth0  
 iface eth0 inet static  
 address 192.168.1.44  
