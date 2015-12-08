@@ -15,9 +15,8 @@
 [UBUNTU](#ubuntu_id)  
 [MEMORY BARRIER](#memory_barrier_id)  
 [FEC](#fec_id)  
-[WIFI](#wifi_id)
-
-# IMX6
+[WIFI](#wifi_id)  
+[IMX6](#imx6_id)
 
 ##	EMMC <span id="EMMC_ID"></span>
 
@@ -374,14 +373,14 @@ MMC test passes
 autorun-mmc.sh: Exiting PASS  
 
 cat autorun-mmc.sh  
-  
-\#!/system/bin/sh  
-  
+```shell
+#!/system/bin/sh  
+ 
 source /test-utils.sh  
-  
-\#  
-\# Exit status is 0 for PASS, nonzero for FAIL  
-\#  
+ 
+#  
+# Exit status is 0 for PASS, nonzero for FAIL  
+#  
 STATUS=0  
   
 run_mmc_case()  
@@ -404,7 +403,7 @@ run_mmc_case()
     fi  
 }  
   
-\# devnode test  
+# devnode test  
 check_devnode "/dev/block/mmcblk0p6"  
   
 if [ "$STATUS" = 0 ]; then  
@@ -413,6 +412,7 @@ fi
   
 print_status  
 exit $STATUS  
+```
 
 ##	Flash Uboot <span id="flash_uboot_ID"></span>  
 
@@ -535,29 +535,30 @@ at the same time.
 ## CAMERA <span id="CAMERA_ID"></span>
 
 ###		V4L2 ioctl call flow <span id="V4L2_ID"></span>
+```c
 		ret_fast_syscall
 			sys_ioctl
 				do_vfs_ioctl
----
 
-			v4l2_ioctl//v4l2-dev.c
-				video_usercopy//v4l2-ioctl.c
-					mxc_v4l_do_ioctl(struct file *file, //mxc_v4l2_capture.c
-						mxc_v4l2_s_ctrl(cam_data *cam, struct v4l2_control *c) //mxc_v4l2_capture.c
-							vidioc_int_s_ctrl(cam->sensor, c); //mxc_v4l2_capture.c
-								v4l2_int_ioctl_0(vidioc_int_s_ctrl_num)//v4l2-int-device.c
-									/* Adapted from search_extable in extable.c. */
-									find_ioctl(d->u.slave, cmd, (v4l2_int_ioctl_func *)no_such_ioctl_0))(d);//ov5640_mipi.c
-									while (first <= last) {
-										const struct v4l2_int_ioctl_desc *mid;
-										mid = (last - first) / 2 + first;
-										if (mid->num < cmd)
-											first = mid + 1;
-										else if (mid->num > cmd)
-											last = mid - 1;
-										else
-											return mid->func;
-									}
+v4l2_ioctl//v4l2-dev.c
+	video_usercopy//v4l2-ioctl.c
+		mxc_v4l_do_ioctl(struct file *file, //mxc_v4l2_capture.c
+			mxc_v4l2_s_ctrl(cam_data *cam, struct v4l2_control *c) //mxc_v4l2_capture.c
+				vidioc_int_s_ctrl(cam->sensor, c); //mxc_v4l2_capture.c
+					v4l2_int_ioctl_0(vidioc_int_s_ctrl_num)//v4l2-int-device.c
+						/* Adapted from search_extable in extable.c. */
+						find_ioctl(d->u.slave, cmd, (v4l2_int_ioctl_func *)no_such_ioctl_0))(d);//ov5640_mipi.c
+						while (first <= last) {
+							const struct v4l2_int_ioctl_desc *mid;
+							mid = (last - first) / 2 + first;
+							if (mid->num < cmd)
+								first = mid + 1;
+							else if (mid->num > cmd)
+								last = mid - 1;
+							else
+								return mid->func;
+						}
+```
 
 ###V4L2 TEST  
 FSL-UT-V4L2-003:  
@@ -602,14 +603,13 @@ tinycap: 录音
  
 2.查看当前系统的声卡  
 [python] view plaincopy在CODE上查看代码片派生到我的代码片  
+    root@android:/ # cat /proc/asound/cards  
+     0 [RKRK616        ]: RK_RK616 - RK_RK616  
+                          RK_RK616  
+     1 [ROCKCHIPSPDIF  ]: ROCKCHIP-SPDIF - ROCKCHIP-SPDIF  
+                          ROCKCHIP-SPDIF  
+    root@android:/ #
 
-    root@android:/ # cat /proc/asound/cards    
-     0 [RKRK616        ]: RK_RK616 - RK_RK616    
-                          RK_RK616    
-     1 [ROCKCHIPSPDIF  ]: ROCKCHIP-SPDIF - ROCKCHIP-SPDIF    
-                          ROCKCHIP-SPDIF    
-    root@android:/ #     
-  
 3.tinymix查看混响器
 
 tinymix使用方法a.不加任何参数-显示当前配置情况 b.tinymix [ctrl id] [var]不加[var]可以查看该[ctrl id]可选选项。  
@@ -670,7 +670,9 @@ root@android:/ # tinycap /sdcard/test.wav
 ls /dev/block/mmcblk1  
 mmcblk1   mmcblk1p1
 
-SD 格式为FAT16／FAT32／VFAT  
+SD 格式为FAT16／FAT32／VFAT后挂载   
+
+	mkfs -t vfat /dev/sdb1
 
     mount -t vfat /dev/block/mmcblk1p1 test/
 
@@ -711,8 +713,7 @@ wget http://dl.google.com/android/ndk/android-ndk-r8b-linux-x86.tar.bz2
 
 
 3、在手机上创建文件/data/bootchart-start，其内容是bootchart的采样时间  
-adb shell 'echo 120 > /data/bootchart-start'  
-
+adb shell 'echo 120 > /data/bootchart-start'
 
 4、重启设备，init运行时将自动创建文件夹/data/bootchart/ \
 			并在其中保存采样数据，采样数据由5个文件组  
@@ -727,29 +728,34 @@ adb shell 'echo 120 > /data/bootchart-start'
 
 busybox tar -czf bootchart.tgz header proc_stat.log proc_ps.log proc_diskstats.log kernel_pacct
 
-
 6.在电脑上安装bootchart工具
 
 使用老版本的安装包bootchart_0.9-0ubuntu6_all.deb，\
 			可以在此下载[http://download.csdn.net/detail/sckgenius/7166477](http://download.csdn.net/detail/sckgenius/7166477)  
 先sudo apt-get install librsvg2-bin，\
-			然后sudo dpkg -i bootchart_0.9-0ubuntu6_all.deb  
+			然后sudo dpkg -i bootchart_0.9-0ubuntu6_all.deb
 
+7、执行下面的命令生成分析结果图表，缺省生成png格式的图像文件bootchart.png：
 
-7、执行下面的命令生成分析结果图表，缺省生成png格式的图像文件bootchart.png：  
-
-java -jar /usr/share/bootchart/bootchart.jar /path/to/bootchart.tgz  
-
+java -jar /usr/share/bootchart/bootchart.jar /path/to/bootchart.tgz
 
 ## UBOOT   <span id="uboot_id"></span>
-config:  
-make mx6dl_sabresd_android_config ARCH=arm CROSS_COMPILE=\`pwd\`/prebuilts/gcc/linux-x86/arm/arm-eabi-4.6/bin/arm-eabi- O=out
 
-compile:  
-make ARCH=arm CROSS_COMPILE=\`pwd\`/prebuilts/gcc/linux-x86/arm/arm-eabi-4.6/bin/arm-eabi- O=out -j8
+    export ARCH=arm
 
-clean:  
-make  ARCH=arm CROSS_COMPILE=\`pwd\`/prebuilts/gcc/linux-x86/arm/arm-eabi-4.6/bin/arm-eabi- O=out  distclean
+    export CROSS_COMPILE=`pwd`/prebuilts/gcc/linux-x86/arm/arm-eabi-4.6/bin/arm-eabi-
+
+config:
+
+    make mx6dl_sabresd_android_config O=out
+
+compile:
+
+    make O=out -j8
+
+clean:
+
+    make O=out distclean
 
 ###uboot_i2c  
 有许多外设芯片都通过i2c总线接到主芯片上，主芯片通过i2c发命令去初始化外设芯片
@@ -785,16 +791,23 @@ i2c md 62 0 a       //其中绿色的表示的就是电量值，可以参考芯�
 
 ## KERNEL   <span id="kernel_id"></span>  
 
+    export ARCH=arm
+
+    export CROSS_COMPILE=`pwd`/prebuilts/gcc/linux-x86/arm/arm-eabi-4.6/bin/arm-eabi-
+
 ###savedefconfig  
 make config配置：其中indoor_defconfig是用.config重新生成的文件，需要保存到arch/arm/configs/下面  
-make O=\`pwd\`/out/target/product/sabresd_6dq/obj/KERNEL ARCH=arm CROSS_COMPILE=\`pwd\`/prebuilts/gcc/linux-x86/arm/arm-eabi-4.6/bin/arm-eabi- indoor_defconfig -C kernel_imx  
-  
-make distclea:  
-make O=\`pwd\`/out/target/product/sabresd_6dq/obj/KERNEL ARCH=arm CROSS_COMPILE=\`pwd\`/prebuilts/gcc/linux-x86/arm/arm-eabi-4.6/bin/arm-eabi- distclean -C kernel_imx  
-  
-将生成的.config文件从新生成defconfig文件，注意，因为.config 内容包含defconfig里的所有内容外加平台相关的 make savedefconfig:  
-make O=\`pwd\`/out/target/product/sabresd_6dq/obj/KERNEL ARCH=arm CROSS_COMPILE=\`pwd\`/prebuilts/gcc/linux-x86/arm/arm-eabi-4.6/bin/arm-eabi- savedefconfig  
 
+    make O=`pwd`/out/target/product/sabresd_6dq/obj/KERNEL indoor_defconfig -C kernel_imx  
+
+make distclean:  
+
+    make O=`pwd`/out/target/product/sabresd_6dq/obj/KERNEL distclean -C kernel_imx  
+
+将生成的.config文件从新生成defconfig文件  
+注意:因为.config 内容包含defconfig里的所有内容外加平台相关的 make savedefconfig:  
+
+    make O=`pwd`/out/target/product/sabresd_6dq/obj/KERNEL savedefconfig
 
 ## MISC <span id="misc_id"></span>
 
@@ -810,22 +823,20 @@ NCURSES:
 编译tmux时的配置方法
 
 其中，把libevetn 和 ncurses编译生成的东西都装在了all_tmp里了  
-./configure LDFLAGS="-L/home/mobz/Downloads/all_tmp/lib" --prefix=$PWD/tmp CPPFLAGS="-I/home/mobz/Downloads/all_tmp/include"     
-
+./configure LDFLAGS="-L/home/mobz/Downloads/all_tmp/lib" --prefix=$PWD/tmp CPPFLAGS="-I/home/mobz/Downloads/all_tmp/include"  
 这里不能用多线程编译，只能用单线程，否则会有错误  
 cp  ../all_tmp/include/ncurses/* ../all_tmp/include/
-
 
 ###pandoc  
 指定xelatex 和字体  
 pandoc x.md -o x.pdf --latex-engine=xelatex -V mainfont="SimSun"  
-[参考文章http://www.cnblogs.com/loongfee/archive/2013/07/29/3223957.html](http://www.cnblogs.com/loongfee/archive/2013/07/29/3223957.html)  
+[参考文章http://www.cnblogs.com/loongfee/archive/2013/07/29/3223957.html](http://www.cnblogs.com/loongfee/archive/2013/07/29/3223957.html)
 
 ###memtool  
 编译该工具直接使用mmm在android顶层目录编译即可  
 
 root@sabresd_6dq:/ # ./memtool   
-Usage:  
+Usage:
 
 Read memory: memtool [-8 | -16 | -32] \<phys addr\> \<count\>  
 Write memory: memtool [-8 | -16 | -32] \<phys addr\>=\<value\>  
@@ -838,7 +849,7 @@ Read register:  memtool UART1.\*
 Write register: memtool UART.UMCR=0x12  
                 memtool UART.UMCR.MDEN=0x1  
 Default access size is 32-bit.  
-  
+
 Address, count and value are all in hex.  
 
 使用方法举例：  
@@ -865,7 +876,6 @@ GPIO1    Addr:0x209c000
 root@sabresd_6dq:/ # ./memtool -32 GPIO1.DR=211C0879             BIT2写0，LED灭了               
 SOC is mx6dl  
 write 0x211C0879 to 0x0209C000  
-
 
 例子2：  
 原理图上DI0_PIN15需要配置成GPIO模式使用GPIO4_17这个引脚  
@@ -1013,6 +1023,22 @@ root@mobz-lenovo:/home/mobz/Desktop/new_indoor/imx6dl# arm-eabi-gdb kobj/vmlinux
   
 ##MARKDOWN   <span id="markdown_id"></span>    
 
+###嵌入代码  
+三个飘号后跟语言  
+C语言  
+```c
+int main(int argc, char **argv)
+{
+	printf("hello markdown!\n");
+	return 0;
+}
+```
+
+JavaScript:  
+```javascript
+var s = "JavaScript syntax highlighting";
+alert(s);
+```
 
 ###加粗  
 this is a normal line
@@ -1150,7 +1176,6 @@ nmap <leader>bp :bp<CR>
 [参考文章http://en.wikipedia.org/wiki/Out-of-order_execution](http://en.wikipedia.org/wiki/Out-of-order_execution)  
 [参考文章https://www.kernel.org/doc/Documentation/memory-barriers.txt](https://www.kernel.org/doc/Documentation/memory-barriers.txt)  
 
-
 ##FEC DRIVER <span id="fec_id"></span> 
 [参考文章http://blog.163.com/thinki_cao/blog/static/8394487520146308450620/](http://blog.163.com/thinki_cao/blog/static/8394487520146308450620/)  
 
@@ -1265,3 +1290,94 @@ ifconfig wlan0 192.168.2.101 netmask 255.255.255.0 up
 
 - 使用DHCP方式设置IP地址：  
 /system/bin/dhcpcd -ABKL -f /system/etc/dhcpcd/dhcpcd.conf -h android-959a25686c0ee6f6 wlan0
+
+## IMX6 <span id="imx6_id"></span>
+### Download Mode  
+添加组合键(power+volume up)进入下载模式  
+```C
+	void check_download_combo(void)
+	{
+		   int button_pressed = 0;
+		   int download_mode = 0;
+		   int flag;
+
+		   /* Check Recovery Combo Button press or not. */
+		   mxc_iomux_v3_setup_pad(MX6X_IOMUX(PAD_GPIO_4__GPIO_1_4));
+
+		   gpio_direction_input(GPIO_VOL_UP_KEY);
+
+		   if (gpio_get_value(GPIO_VOL_UP_KEY) == 0) { /* VOL_UP key is low assert */
+				   button_pressed = 1;
+				   printf("Recovery key pressed, let's enter download\n");
+				   run_command("download_mode", flag);
+		   }
+	}
+```
+###Power On Reason   
+添加开机原因,在开机后读取WDT的寄存器即可
+```c
+static inline void restart_reason_check(void)
+{
+       u16 val = __raw_readw(imx2_wdt.base + IMX2_WDT_WRSR);
+
+       val &= 0x1F;
+
+       if (0x1 == val)
+               printk("Restart Reason: software reset\n");
+       else if (0x2 == val)
+               printk("Restart Reason: watch dog time out\n");
+       else if (0x10 == val)
+               printk("Restart Reason: power on reset\n");
+       else
+               printk("Restart Reason: unknow power reason\n");
+}
+```
+在系统启动后配置WDT就可以进行检测
+```c
+static inline void imx2_wdt_setup(void)
+   /* check the restart reason after open */
+   restart_reason_check();
+```
+
+![wdt1](./pngs/wdt1.png)
+![wdt2](./pngs/wdt2.png)
+
+###开机闪屏问题
+由于LCD供电脚直接有电池提供导致上电就给LCD提供了电源
+进入系统是一开始又没有点亮屏的操作
+所以会造成闪屏的问题
+由于FSL原始代码没有配置
+目前使用的LCD使能脚为相应的管脚功能
+导致开机该管脚信号为方波
+重新配置即可
+```c
+void disable_lcd_module(void)
+{
+       mxc_iomux_v3_setup_pad(MX6DL_PAD_DI0_PIN15__GPIO_4_17);
+       gpio_direction_output(LCD_ENABLE, 0);
+}
+```
+开机检测电量值，在低电量时不开机
+```c
+int check_external_power(void)
+{
+       int i;
+       mxc_iomux_v3_setup_pad(MX6DL_PAD_DI0_PIN4__GPIO_4_20);
+       gpio_direction_input(MX6DL_PAD_DI0_PIN4__GPIO_4_20);
+       for (i = 0; i < 100; i++);
+       return gpio_get_value(SABRESD_CW2015_DC);
+}
+```
+在board.c里添加下面的代码
+```c
+       /* disable lcd */
+       disable_lcd_module();
+
+       /* read capacity and external power plugin */
+       i2c_read(0x62, 0x4, 1, &cp, 1);
+       dc_det_pin = check_external_power();
+
+       /* low power and no external power */
+       if (cp < 0x1 && dc_det_pin)
+               run_command("download_mode", flag);
+```
