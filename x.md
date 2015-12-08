@@ -27,8 +27,8 @@ FSL_USDHC: 1
 FSL_USDHC: 2  
 FSL_USDHC: 3  
 
-![emmc1](./e1.png)  
-![emmc2](./e2.png)  
+![emmc1](./pngs/e1.png)  
+![emmc2](./pngs/e2.png)  
 
 从原理图上可以知道，EMMC接到的是第四个接口上，所以要操作EMMC的话需要切换到相应的接口：  
 MX6SDL SABRESD U-Boot > mmc dev 3    //UBOOT里从0开始计数  
@@ -249,7 +249,7 @@ MX6SDL SABRESD U-Boot > md.b 0x10800000 200
 00005e0: 3333 3333 021b 0828 3333 3333 021b 481c  3333...(3333..H.  
 00005f0: 3333 3333 021b 4820 3333 3333 021b 4824  3333..H 3333..H$  
 
-![uboot](./uboot.png)
+![uboot](./pngs/uboot.png)
 
 write boot.img:
 dd if=$FILE of=/dev/mmcblk0p1
@@ -303,7 +303,7 @@ MX6SDL SABRESD U-Boot > md.b 0x10800000 2000
 00000f0: 742e 6861 7264 7761 7265 3d66 7265 6573  t.hardware=frees  
 0000100: 6361 6c65 0000 0000 0000 0000 0000 0000  cale............  
 
-![bootimage](./bootimage.png)
+![bootimage](./pngs/bootimage.png)
 
 Sending and writting system.img:  
 pipe dd of=/dev/mmcblk0p5 bs=512\" file=\"files/android/system.img  
@@ -318,10 +318,10 @@ MX6SDL SABRESD U-Boot >  mmc read 0x10800000 C001 200
 MX6SDL SABRESD U-Boot > md.b 0x10800000 2000  
 截取一段有数据的比对下：在DDR地址400的地方开始有数据  
 
-![system_in_uboot](./sinu.png)
+![system_in_uboot](./pngs/sinu.png)
 
 打开system.img也是在相同地址有相同的数据  
-![system_in_image](./sini.png)
+![system_in_image](./pngs/sini.png)
 
  Android fstab file.  
 <src>     <mnt_point>     <type>    <mnt_flags and options>          <fs_mgr_flags>  
@@ -479,18 +479,18 @@ xyzModem - CRC mode, 3594(SOH)/0(STX)/0(CAN) packets, 3 retries
 
 有下表可以知道bootloader位于1KB的偏移量开始的地方 1KB = 1024Byte = 2blk  默认1个blk事512Byte  
 所以读u-boot 是mmc read 10800000 2 100  这里的2是这么算出来的  
-![fig4](./partitions.png)  
+![fig4](./pngs/partitions.png)  
 对于为什么要跳过这前1KB的大小，从文档中看是预留给MBR使用的:  
 keep the first 512bytes 做为MBR使用，所以这里预留了前1KB  
-![fig3](./mmcmmap.png)  
+![fig3](./pngs/mmcmmap.png)  
 
 ## DDR <span id="ddr_id"></span>  
 从下面的memory map 可以看出DDR的起始地址由DDR Memory Map Config配置决定：  
-![ddr1](./ddr1.png)
+![ddr1](./pngs/ddr1.png)
 下图可以看到如果是从EMMC启动的话这个配置是看寄存器BOOT_CFG3的值：  
-![ddr2](./ddr2.png)  
+![ddr2](./pngs/ddr2.png)  
 上面这个启动模式的寄存器的值地址是0x20d8004：  
-![ddr3](./ddr3.png)  
+![ddr3](./pngs/ddr3.png)  
 进入系统后用memtool查看BOOT_CFG3 是0 所以DDR的起始地址就是第一张图里的1000_0000：  
 root@sabresd_6dq:/ # memtool SRC.SBMR1                                          
 SOC is mx6dl  
@@ -505,7 +505,7 @@ SRC      Addr:0x20d8000
              Please refer to fuse map.  
      SRC.SBMR1.BOOT_CFG4(24..31)        :0x0  
              Please refer to fuse map.  
-![ddr4](./ddr4.png)  
+![ddr4](./pngs/ddr4.png)  
 现在用的板的DDR大小是1G的,即0x40000000：  
 所以DDR的映射地址是从1000_0000 到 4fff_ffff的地址空间  
 
@@ -692,7 +692,7 @@ wget http://dl.google.com/android/ndk/android-ndk-r8b-linux-x86.tar.bz2
 
 
 ###Tablet Layout  
-![tablet layout](./tablet_layout.png)  
+![tablet layout](./pngs/tablet_layout.png)  
 
 ###BusyBox  
 [参考文章http://blog.csdn.net/skdev/article/details/45094637](http://blog.csdn.net/skdev/article/details/45094637)
@@ -846,13 +846,13 @@ Address, count and value are all in hex.
 使用方法举例：  
 例子1：  
 原理图中有一个GPIO2接了USR_DEF_RED_LED   
-![gpio2](./gp2.png)
+![gpio2](./pngs/gp2.png)
 
 在代码里搜索可知，当GPIO_1_2作为GPIO模式的时候是第一组GPIO，对应GPIO1  
-![gpcode](./gpcode.png)
+![gpcode](./pngs/gpcode.png)
 
 在数据手册里如下：  
-![gpio map](./gpio_map.png)
+![gpio map](./pngs/gpio_map.png)
 
 所以要使用memtool来操作的话只要读或写这个寄存器相应的值即可  
 先读出来看下是多少：  
@@ -872,11 +872,11 @@ write 0x211C0879 to 0x0209C000
 例子2：  
 原理图上DI0_PIN15需要配置成GPIO模式使用GPIO4_17这个引脚  
 
-![di00](./di00.png)  
-![di01](./di01.png)  
+![di00](./pngs/di00.png)  
+![di01](./pngs/di01.png)  
 
 根据代码可以知道DI0_PIN15对应的GPIO是BANK4 的地17根，即GPIO4  
-![di0code](./di0code.png)  
+![di0code](./pngs/di0code.png)  
 先查看DI0_PIN15模式，发现不是我们需要的GPIO模式  
 root@sabresd_6dq:/ # ./memtool -32 IOMUXC.SW_MUX_CTL_PAD_DI0_PIN15              
 SOC is mx6dl  
@@ -917,7 +917,7 @@ write 0x00043820 to 0x020A8000
 root@sabresd_6dq:/ # ./dump-clocks-dot.sh > d.txt  
 得到d.txt数据后在LINUX PC上执行(其中dot需要安装软件sudo apt-get install graphviz获得)：  
 dot -Tpng -O d.txt  
-![IMX6DL clocks](./clks.png)
+![IMX6DL clocks](./pngs/clks.png)
 
 ###uboot logo bmp  
 烧写BMP文件  
@@ -1168,7 +1168,7 @@ nmap <leader>bp :bp<CR>
 - 代码移植  
     1. 将SDK里的代码拷贝到android相应的目录中  
     2. 平台相关文件修改BoardConfig.mk (device/fsl/sabresd_6dq/BoardConfig.mk)  
-	![board config](./boardconfig.png)
+	![board config](./pngs/boardconfig.png)
 
 	3. 相关宏解释  
 		BOARD_WIFI_VENDOR := realtek  
@@ -1190,8 +1190,8 @@ nmap <leader>bp :bp<CR>
 		WIFI_DRIVER_MODULE_ARG  
 		这三个宏是给libhardware_legacy (wifi.c/wifi_realtek.c)用来插入和卸载模块  
 	4. init.xxx.rc(device/fsl/imx6/etc/init.rc)  
-![wpa](./wpa.png)  
-![dhcpd](./dhcpd.png)  
+![wpa](./pngs/wpa.png)  
+![dhcpd](./pngs/dhcpd.png)  
 	5. 其它设置device.mk  
 	设置wifi.interface  
 	PRODUCT_PROPERTY_OVERRIDES += \  
@@ -1209,19 +1209,19 @@ nmap <leader>bp :bp<CR>
 	全局相关的资源  
 	frameworks/base/core/res/res/values/config.xml  
 	网络属性    
-	![netattr](./netattr.png)  
+	![netattr](./pngs/netattr.png)  
 	广播属性    
-	![radioattr](./radioattr.png)  
+	![radioattr](./pngs/radioattr.png)  
 	config_tether_wifi_regexs  
-	![regex](./regex.png)  
+	![regex](./pngs/regex.png)  
 	config_tether_upstream_types  
-	![upstream](./upstream.png)  
+	![upstream](./pngs/upstream.png)  
 	libhardware_legacy  
-	![legacy](./legacy.png)  
+	![legacy](./pngs/legacy.png)  
 	6. Android JB 驱动配置  	
 	STA/AP – Switch between STA and AP mode  
 	(STA+P2P)/AP – Switch between STA+P2P concurrent and AP mode  
-	![marcro](./MACRO.png)  
+	![marcro](./pngs/MACRO.png)  
 - FAQ  
 	1. Wi-Fi 无法打开  
 		Please check in sequence:  
