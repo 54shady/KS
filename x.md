@@ -1,5 +1,5 @@
 [EMMC](#EMMC_ID)  
-[DDR](#ddr_id)
+[DDR](#ddr_id)  
 [LCD LVDS LDB](#lcd_id)  
 [FLASH UBOOT](#flash_uboot_ID)  
 [V4L2 CALL FLOW](#V4L2_ID)  
@@ -76,9 +76,7 @@ MX6SDL SABRESD U-Boot > mmc dev 3 0
 switch to partition #0, OK  
 mmc3(part 0) is current device  
 
-
 [参考文章http://blog.csdn.net/simonjay2007/article/details/43198353](http://blog.csdn.net/simonjay2007/article/details/43198353).
-
 
 MX6SDL SABRESD U-Boot > mmc part  
 
@@ -123,16 +121,16 @@ Partition     Start Sector     Num Sectors     Type
 分析烧写工具里脚本知道：boot.img烧写到了p1分区，对应UBOOT里的就是16384这个起始地址，转换为16进制就是4000  
 
     dd if=$FILE of=/dev/mmcblk0p1  
-  
+
 脚本里烧写IMX6DL ANDROID EMMC的内容:  
-  
+
 clean up u-boot parameter:  
 
     dd if=/dev/zero of=/dev/mmcblk0 bs=512 seek=1536 count=16
 
 从这里知道参数存在偏移地址1536的地方,  
 既后面的blk=1536的十六进制(600)，长度是16 * 512 = 2000(十六进制)  
-  
+
 先要切换到part 0  
 MX6SDL SABRESD U-Boot > mmc dev 3 0  
 switch to partition #0, OK  
@@ -140,7 +138,7 @@ mmc3(part 0) is current device
 读参数分区（确保参数都已经写入到EMMC中了）：  
 *** Warning - bad CRC or MMC, using default environment    //说明参数分区没有写入EMMC中  
 MX6SDL SABRESD U-Boot > save   //保存参数分区到EMMC中  
-  
+
 MX6SDL SABRESD U-Boot > mmc read 0x10800000 600 100      //这里最多读2000长度  
 显示：
 MX6SDL SABRESD U-Boot > md.b 0x10800000 100  
@@ -166,19 +164,19 @@ write U-Boot to sd card:
     dd if=$FILE of=/dev/mmcblk0 bs=512 seek=2 skip=2
 
 跳过了前 2 * 512 字节 = 1024字节 既0x400  
-切换到UBOOT的分区：为什么知道这个分区里烧的是UBOOT？
-MX6SDL SABRESD U-Boot > mmc bootpart
-Device 3: boot partition 1 is for boot    //从这个信息得到，大胆猜测 part 1就是bootloader
+切换到UBOOT的分区：为什么知道这个分区里烧的是UBOOT？  
+MX6SDL SABRESD U-Boot > mmc bootpart  
+Device 3: boot partition 1 is for boot    //从这个信息得到，大胆猜测 part 1就是bootloader  
 
-切换到UBOOT的分区:
-MX6SDL SABRESD U-Boot > mmc dev 3 1
-switch to partition #1, OK
-mmc3(part 1) is current device
+切换到UBOOT的分区:  
+MX6SDL SABRESD U-Boot > mmc dev 3 1  
+switch to partition #1, OK  
+mmc3(part 1) is current device  
 
-读出UBOOT到DDR中：
-MX6SDL SABRESD U-Boot > mmc read 0x10800000 2 100
-显示读出的内容：
-MX6SDL SABRESD U-Boot > md.b 0x10800000 200
+读出UBOOT到DDR中：  
+MX6SDL SABRESD U-Boot > mmc read 0x10800000 2 100  
+显示读出的内容：  
+MX6SDL SABRESD U-Boot > md.b 0x10800000 200  
 10800000: d1 00 20 40 e0 06 80 27 00 00 00 00 2c 04 80 27    .. @...'....,..'  
 10800010: 20 04 80 27 00 04 80 27 00 00 00 00 00 00 00 00     ..'...'........  
 10800020: 00 00 80 27 58 f5 06 00 00 00 00 00 d2 02 a0 40    ...'X..........@  
@@ -211,11 +209,11 @@ MX6SDL SABRESD U-Boot > md.b 0x10800000 200
 108001d0: 33 33 33 33 02 1b 08 20 33 33 33 33 02 1b 08 24    3333... 3333...$  
 108001e0: 33 33 33 33 02 1b 08 28 33 33 33 33 02 1b 48 1c    3333...(3333..H.  
 108001f0: 33 33 33 33 02 1b 48 20 33 33 33 33 02 1b 48 24    3333..H 3333..H$  
-  
+
 对比烧写的镜像文件,这里有点要注意的是,我们烧写的时候是跳过了镜像文件的前skip * 512字节的  
 也就是跳过了u-boot-6dl.bin的前0x400字节，所以要从u-boot-6dl.bin文件的0x400开始对比：  
 发现有段数据不一致？目前不知道为什么？从0x590开始才一样   //这里目前有个疑点  
-  
+
 0000400: 3f00 2040 3f06 3f27 0000 0000 2c04 3f27  ?. @?.?'....,.?'  
 0000410: 2004 3f27 0004 3f27 0000 0000 0000 0000   .?'..?'........  
 0000420: 0000 3f27 583f 0600 0000 0000 3f02 3f40  ..?'X?......?.?@  
@@ -829,11 +827,11 @@ pandoc x.md -o x.pdf --latex-engine=xelatex -V mainfont="SimSun"
 root@sabresd_6dq:/ # ./memtool   
 Usage:  
 
-Read memory: memtool [-8 | -16 | -32] <phys addr> <count>  
-Write memory: memtool [-8 | -16 | -32] <phys addr>=<value>  
+Read memory: memtool [-8 | -16 | -32] \<phys addr\> \<count\>  
+Write memory: memtool [-8 | -16 | -32] \<phys addr\>=\<value\>  
 
 List SOC module: memtool *. or memtool .            //查看系统内存映射关系  
-Read register:  memtool UART1.*  
+Read register:  memtool UART1.\*  
                 memtool UART1.UMCR  
                 memtool UART1.UMCR.MDEN  
                 memtool UART1.-  
@@ -1028,18 +1026,6 @@ this is anormal line
 
 ## My Ubuntu <span id="ubuntu_id"></span>
 
-### firefox flash player  
-安装方法：  
-1. 下载Adobe Flash Player:  
-请从Adobe官方下载，也可以从这个URL下载，这个URL也是官方的链接：  
-http://fpdownload.macromedia.com/get/flashplayer/pdc/11.2.202.235/install_flash_player_11_  
-linux.x86_64.tar.gz  
-  
-(1) 将libflashplayer.so拷贝到Firefox的Plugin目录：  
-cp libflashplayer.so /usr/lib/mozilla/plugins/  
-(2) 将usr目录下的所有文档拷贝到系统的/usr目录下：  
-cp -r ./usr/* /usr/
-
 ### 上网配置  
 step 1 :  
 [~]# cat /etc/network/interfaces  
@@ -1132,13 +1118,22 @@ scp /home/mobz/.ssh/id_rsa.pub zhangt@192.168.1.135:/home/zhangt/.ssh/authorized
 ###设置默认网关  
 sudo route add default gw 10.1.3.1
 
+### firefox flash player  
+安装方法：  
+1. 下载Adobe Flash Player:  
+请从Adobe官方下载  
+  
+(1) 将libflashplayer.so拷贝到Firefox的Plugin目录：  
+cp libflashplayer.so /usr/lib/mozilla/plugins/  
+(2) 将usr目录下的所有文档拷贝到系统的/usr目录下：  
+cp -r ./usr/* /usr/
+
 ###火狐浏览器VIMPER    
 1. 生成配置文件  
 :mkv  能够在用户目录下生成相应的配置文件，比如/home/mobz/ .vimperatorrc  
 目前使用的配置文件内容：  
   
 source! /home/mobz/.vimperatorrc.local  
-  
   
 set runtimepath=/home/mobz/.vimperator  
 let mapleader = ","  
