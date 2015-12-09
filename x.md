@@ -26,8 +26,9 @@ FSL_USDHC: 1
 FSL_USDHC: 2  
 FSL_USDHC: 3  
 
-![emmc1](./pngs/e1.png)  
-![emmc2](./pngs/e2.png)  
+![emmc1](./pngs/e1.png)
+
+![emmc2](./pngs/e2.png)
 
 从原理图上可以知道，EMMC接到的是第四个接口上，所以要操作EMMC的话需要切换到相应的接口：  
 MX6SDL SABRESD U-Boot > mmc dev 3    //UBOOT里从0开始计数  
@@ -317,7 +318,8 @@ MX6SDL SABRESD U-Boot > md.b 0x10800000 2000
 
 ![system_in_uboot](./pngs/sinu.png)
 
-打开system.img也是在相同地址有相同的数据  
+打开system.img也是在相同地址有相同的数据
+
 ![system_in_image](./pngs/sini.png)
 
  Android fstab file.  
@@ -477,20 +479,29 @@ xyzModem - CRC mode, 3594(SOH)/0(STX)/0(CAN) packets, 3 retries
 
 有下表可以知道bootloader位于1KB的偏移量开始的地方 1KB = 1024Byte = 2blk  默认1个blk事512Byte  
 所以读u-boot 是mmc read 10800000 2 100  这里的2是这么算出来的  
-![fig4](./pngs/partitions.png)  
+
+![imx6 android partitions](./pngs/partitions.png)
+
 对于为什么要跳过这前1KB的大小，从文档中看是预留给MBR使用的:  
 keep the first 512bytes 做为MBR使用，所以这里预留了前1KB  
-![fig3](./pngs/mmcmmap.png)  
+
+![mmc memory map](./pngs/mmcmmap.png)
 
 ## DDR <span id="ddr_id"></span>  
 从下面的memory map 可以看出DDR的起始地址由DDR Memory Map Config配置决定：  
-![ddr1](./pngs/ddr1.png)
+
+![ddr mapping](./pngs/ddr1.png)
+
 下图可以看到如果是从EMMC启动的话这个配置是看寄存器BOOT_CFG3的值：  
-![ddr2](./pngs/ddr2.png)  
-上面这个启动模式的寄存器的值地址是0x20d8004：  
-![ddr3](./pngs/ddr3.png)  
+
+![Boot Fusemap](./pngs/ddr2.png)
+
+上面这个启动模式的寄存器的值地址是0x20d8004：
+
+![SBMR](./pngs/ddr3.png)
+
 进入系统后用memtool查看BOOT_CFG3 是0 所以DDR的起始地址就是第一张图里的1000_0000：  
-root@sabresd_6dq:/ # memtool SRC.SBMR1                                          
+root@sabresd_6dq:/ # memtool SRC.SBMR1  
 SOC is mx6dl  
 
 SRC      Addr:0x20d8000  
@@ -502,11 +513,12 @@ SRC      Addr:0x20d8000
      SRC.SBMR1.BOOT_CFG3(16..23)        :0x0  
              Please refer to fuse map.  
      SRC.SBMR1.BOOT_CFG4(24..31)        :0x0  
-             Please refer to fuse map.  
-![ddr4](./pngs/ddr4.png)  
+             Please refer to fuse map.
+
+![SRC_SBMR](./pngs/ddr4.png)
+
 现在用的板的DDR大小是1G的,即0x40000000：  
 所以DDR的映射地址是从1000_0000 到 4fff_ffff的地址空间  
-
 
 ## LCD LVDS LDB <span id="lcd_id"></span>
 
@@ -692,7 +704,8 @@ wget http://dl.google.com/android/ndk/android-ndk-r8b-linux-x86.tar.bz2
 
 
 ###Tablet Layout  
-![tablet layout](./pngs/tablet_layout.png)  
+
+![tablet layout](./pngs/tablet_layout.png)
 
 ###BusyBox  
 [参考文章http://blog.csdn.net/skdev/article/details/45094637](http://blog.csdn.net/skdev/article/details/45094637)
@@ -710,7 +723,6 @@ wget http://dl.google.com/android/ndk/android-ndk-r8b-linux-x86.tar.bz2
 
 
 2、将新编译的android系统镜像烧录到android设备中。//烧写boot.img  
-
 
 3、在手机上创建文件/data/bootchart-start，其内容是bootchart的采样时间  
 adb shell 'echo 120 > /data/bootchart-start'
@@ -811,6 +823,10 @@ make distclean:
 
 ## MISC <span id="misc_id"></span>
 
+###vim
+vim删除空行
+:g/^$/d
+
 ### tmux  
 LIBEVENT:  
 [libevent-2.0.22-stable]# ./configure --prefix=/home/mobz/Downloads/all_tmp  
@@ -855,12 +871,15 @@ Address, count and value are all in hex.
 使用方法举例：  
 例子1：  
 原理图中有一个GPIO2接了USR_DEF_RED_LED   
+
 ![gpio2](./pngs/gp2.png)
 
 在代码里搜索可知，当GPIO_1_2作为GPIO模式的时候是第一组GPIO，对应GPIO1  
+
 ![gpcode](./pngs/gpcode.png)
 
-在数据手册里如下：  
+在数据手册里如下：
+
 ![gpio map](./pngs/gpio_map.png)
 
 所以要使用memtool来操作的话只要读或写这个寄存器相应的值即可  
@@ -880,11 +899,14 @@ write 0x211C0879 to 0x0209C000
 例子2：  
 原理图上DI0_PIN15需要配置成GPIO模式使用GPIO4_17这个引脚  
 
-![di00](./pngs/di00.png)  
-![di01](./pngs/di01.png)  
+![DI0_PIN15](./pngs/di00.png)
 
-根据代码可以知道DI0_PIN15对应的GPIO是BANK4 的地17根，即GPIO4  
-![di0code](./pngs/di0code.png)  
+![DI0_PIN15](./pngs/di01.png)
+
+根据代码可以知道DI0_PIN15对应的GPIO是BANK4 的地17根，即GPIO4
+
+![di0code](./pngs/di0code.png)
+
 先查看DI0_PIN15模式，发现不是我们需要的GPIO模式  
 root@sabresd_6dq:/ # ./memtool -32 IOMUXC.SW_MUX_CTL_PAD_DI0_PIN15              
 SOC is mx6dl  
@@ -925,8 +947,69 @@ write 0x00043820 to 0x020A8000
 root@sabresd_6dq:/ # ./dump-clocks-dot.sh > d.txt  
 得到d.txt数据后在LINUX PC上执行(其中dot需要安装软件sudo apt-get install graphviz获得)：  
 dot -Tpng -O d.txt  
+
 ![IMX6DL clocks](./pngs/clks.png)
 
+cat dump-clocks-dot.sh
+```shell
+#!/bin/bash
+
+if [ $# -gt 0 ]; then
+	echo "Usage:"
+	echo "	1. run '$0 > d.txt' on Target Board"
+	echo "	2. run 'dot -Tpng -O d.txt' on Host PC to generate a PNG file."
+	exit 0
+fi
+
+if ! mount|grep -sq '/sys/kernel/debug'; then
+	mount -t debugfs none /sys/kernel/debug
+fi
+
+saved_path=$PWD
+
+#printf "%-24s %-24s %3s %9s\n" "clock" "parent" "use" "rate"
+printf "digraph clocktree {\n"
+printf "rankdir = LR;\n"
+printf "node [shape=record];\n"
+
+for foo in $(find /sys/kernel/debug/clock -type d); do
+    if [ "$foo" = '/sys/kernel/debug/clock' ]; then
+        continue
+    fi
+
+    cd $foo
+
+    use="$(cat usecount)"
+    rate="$(cat rate)"
+
+    clk="$(basename $foo)"
+    cd ..
+    parent="$(basename $PWD)"
+
+    if [ "$use" = 0 ]; then
+    	bgcolor="red"
+    else
+    	bgcolor="green"
+    fi
+
+    printf "%s [label=\"%s|rate %d|use $use\" color=%s];\n" "$clk" "$clk" "$rate" $bgcolor
+
+    if [ "$parent" = 'clock' ]; then
+        parent="virtual_Root"
+# 	printf "%s d];\n"  "$clk" "$clk" "$rate"
+    else
+    	printf "%s -> %s\n" "$parent" "$clk"
+    fi
+
+#    printf "%s [label=%s_%d];\n" "$clk" "$rate"
+#    printf "%s -> %s ;\n" "$parent" "$clk"
+# "$use" "$rate"
+
+    cd $saved_path
+done
+
+printf "}\n"
+```
 ###uboot logo bmp  
 烧写BMP文件  
 dd if=denx.bmp of=/dev/block/mmcblk0 bs=1 seek=1048576 skip=54  
@@ -1051,6 +1134,16 @@ this is anormal line
 空格+空格+回车换行，所以在每行最后需要有两个空格    
 
 ## My Ubuntu <span id="ubuntu_id"></span>
+
+###terminator  
+配置terminator使用solarized配色  
+
+    mkdir -p ~/.config/terminator/
+
+    curl https://raw.github.com/ghuntley/terminator-solarized/
+	master/config > ~/.config/terminator/config
+
+然后重新打开terminator就已经是solarized配色了。
 
 ### 上网配置  
 step 1 :  
@@ -1188,6 +1281,7 @@ nmap <leader>bp :bp<CR>
 - 代码移植  
     1. 将SDK里的代码拷贝到android相应的目录中  
     2. 平台相关文件修改BoardConfig.mk (device/fsl/sabresd_6dq/BoardConfig.mk)  
+
 	![board config](./pngs/boardconfig.png)
 
 	3. 相关宏解释  
@@ -1210,8 +1304,11 @@ nmap <leader>bp :bp<CR>
 		WIFI_DRIVER_MODULE_ARG  
 		这三个宏是给libhardware_legacy (wifi.c/wifi_realtek.c)用来插入和卸载模块  
 	4. init.xxx.rc(device/fsl/imx6/etc/init.rc)  
-![wpa](./pngs/wpa.png)  
-![dhcpd](./pngs/dhcpd.png)  
+
+![wpa](./pngs/wpa.png)
+
+![dhcpd](./pngs/dhcpd.png)
+
 	5. 其它设置device.mk  
 	设置wifi.interface  
 	PRODUCT_PROPERTY_OVERRIDES += \  
@@ -1228,20 +1325,32 @@ nmap <leader>bp :bp<CR>
 	device/fsl/sabresd_6dq/overlay/frameworks/base/core/res/res/values/config.xml  
 	全局相关的资源  
 	frameworks/base/core/res/res/values/config.xml  
-	网络属性    
-	![netattr](./pngs/netattr.png)  
-	广播属性    
-	![radioattr](./pngs/radioattr.png)  
-	config_tether_wifi_regexs  
-	![regex](./pngs/regex.png)  
-	config_tether_upstream_types  
-	![upstream](./pngs/upstream.png)  
-	libhardware_legacy  
-	![legacy](./pngs/legacy.png)  
-	6. Android JB 驱动配置  	
+	网络属性
+
+	![netattr](./pngs/netattr.png)
+
+	广播属性
+
+	![radioattr](./pngs/radioattr.png)
+
+	config_tether_wifi_regexs
+
+	![regex](./pngs/regex.png)
+
+	config_tether_upstream_types
+
+	![upstream](./pngs/upstream.png)
+
+	libhardware_legacy
+
+	![legacy](./pngs/legacy.png)
+
+	6. Android JB 驱动配置  
 	STA/AP – Switch between STA and AP mode  
 	(STA+P2P)/AP – Switch between STA+P2P concurrent and AP mode  
-	![marcro](./pngs/MACRO.png)  
+
+	![marcro](./pngs/MACRO.png)
+
 - FAQ  
 	1. Wi-Fi 无法打开  
 		Please check in sequence:  
@@ -1340,6 +1449,7 @@ static inline void imx2_wdt_setup(void)
 ```
 
 ![wdt1](./pngs/wdt1.png)
+
 ![wdt2](./pngs/wdt2.png)
 
 ###开机闪屏问题
@@ -1381,3 +1491,90 @@ int check_external_power(void)
        if (cp < 0x1 && dc_det_pin)
                run_command("download_mode", flag);
 ```
+###LVDS LCD porting
+修改文件drivers/video/mxc/ldb.c  
+```c
+struct fb_videomode {  
+    const char *name;
+    u32 refresh;
+    u32 xres;
+    u32 yres;
+    u32 pixclock;
+    u32 left_margin;     // HBPD(horizontal back porch)：80  
+    u32 right_margin;    // HFPD(horizontal front porth)：48  
+    u32 upper_margin;    // VBPD(vertical back porch),15  
+    u32 lower_margin;    // VFBD(vertical front porch),2  
+    u32 hsync_len;       // HSPW(horizontal sync pulse width)：32  
+    u32 vsync_len;       // VSPW(vertical sync pulse width)：47  
+    u32 sync;  
+    u32 vmode;  
+    u32 flag;  
+}; 
+```
+
+![lcdt](./pngs/lcdt.png)
+
+添加LCD时序配置
+```c
+static struct fb_videomode ldb_modedb[] = {
+	{
+		 "LDB-XGA", 60, 1280, 800, 13623,
+		 80, 48,
+		 15, 2,
+		 32, 47,
+		 0,
+		 FB_VMODE_NONINTERLACED,
+		 FB_MODE_IS_DETAILED,
+	},
+};
+```
+板级修改
+```c
+static struct ipuv3_fb_platform_data qcorein_fb_data[] = {
+	{ /*fb0*/
+		.disp_dev = "ldb",
+		.interface_pix_fmt = IPU_PIX_FMT_RGB666,
+		.mode_str = "LDB-XGA",
+		.default_bpp = 16,
+		.int_clk = false,
+		.late_init = false,
+	}, {
+		.disp_dev = "hdmi",
+		.interface_pix_fmt = IPU_PIX_FMT_RGB24,
+		.mode_str = "1920x1080M@60",
+		.default_bpp = 32,
+		.int_clk = false,
+		.late_init = false,
+	}, {
+		.disp_dev = "ldb",
+		.interface_pix_fmt = IPU_PIX_FMT_RGB666,
+		.mode_str = "LDB-XGA",
+		.default_bpp = 16,
+		.int_clk = false,
+		.late_init = false,
+	},{
+		.disp_dev = "ldb",
+		.interface_pix_fmt = IPU_PIX_FMT_RGB666,
+		.mode_str = "LDB-WXGA",
+		.default_bpp = 16,
+		.int_clk = false,
+		.late_init = false,
+	},
+};
+```
+IPU显示源修改
+```c
+static struct fsl_mxc_ldb_platform_data ldb_data = {
+	.ipu_id = 0,
+	.disp_id = 1,
+	.ext_ref = 1,
+	.mode = LDB_SEP1, /*Using LVDS1 Port*/
+	.sec_ipu_id = 0,
+	.sec_disp_id = 0,
+};
+```
+u-boot参数设置  
+set bootargs console=ttymxc0,115200 init=/init video=mxcfb0:dev=ldb,
+LDBXGA,if=RGB24,bpp=18 ldb=sin0 video=mxcfb1:off video=mxcfb2:off 
+fbmem=10M fb0base=0x27b00000 vmalloc=400M 
+androidboot.console=ttymxc0 androidboot.hardware=freescale
