@@ -1275,81 +1275,150 @@ nmap <leader>bp :bp<CR>
 ##WIFI <span id="wifi_id"></span>  
 ###RTL8192EU  
 - 支持的两种模式  
-	1. STA/AP – Switch between STA mode and AP mode  
-    2. (STA+P2P)/AP – Switch between STA+P2P(Wi-Fi Direct) concurrent mode and AP mode  
+1. STA/AP – Switch between STA mode and AP mode  
+2. (STA+P2P)/AP – Switch between STA+P2P(Wi-Fi Direct) concurrent mode and AP mode  
 
 - 代码移植  
-    1. 将SDK里的代码拷贝到android相应的目录中  
-    2. 平台相关文件修改BoardConfig.mk (device/fsl/sabresd_6dq/BoardConfig.mk)  
+1. 将SDK里的代码拷贝到android相应的目录中  
+2. 平台相关文件修改BoardConfig.mk (device/fsl/sabresd_6dq/BoardConfig.mk)
 
-	![board config](./pngs/boardconfig.png)
+```shell
+BOARD_WLAN_VENDOR 			 := REALTEK
+#BOARD_WIFI_VENDOR        := realtek
+# for Realtek RTL8723CUS
+#ifeq ($(BOARD_WLAN_VENDOR), REALTEK)
 
-	3. 相关宏解释  
-		BOARD_WIFI_VENDOR := realtek  
-		为了和其它厂商的芯片区别开定义的这个宏  
+BOARD_WIFI_VENDOR := realtek
+ifeq ($(BOARD_WIFI_VENDOR), realtek)
+WPA_SUPPLICANT_VERSION			 := VER_0_8_X
+BOARD_WPA_SUPPLICANT_DRIVER      := NL80211
+CONFIG_DRIVER_WEXT := y
+BOARD_WPA_SUPPLICANT_PRIVATE_LIB := lib_driver_cmd_rtl
+BOARD_HOSTAPD_DRIVER                    := NL80211
+BOARD_HOSTAPD_PRIVATE_LIB           := lib_driver_cmd_rtl
+BOARD_WLAN_DEVICE                          := rtl8192eu
 
-		WPA_SUPPLICANT_VERSION := VER_0_8_X  
-		JB 使用的是wpa_supplicant_8  
+WIFI_DRIVER_MODULE_NAME             := "8192eu"
+WIFI_DRIVER_MODULE_PATH              := "/system/lib/modules/8192eu.ko"
+WIFI_DRIVER_MODULE_ARG                := "ifname=wlan0 if2name=p2p0"
 
-		BOARD_WPA_SUPPLICANT_DRIVER := NL80211  
-		BOARD_WPA_SUPPLICANT_PRIVATE_LIB := lib_driver_cmd_ rtl  
-		BOARD_HOSTAPD_DRIVER := NL80211  
-		BOARD_HOSTAPD_PRIVATE_LIB := lib_driver_cmd_rtl  
+WIFI_FIRMWARE_LOADER                    := ""
+WIFI_DRIVER_FW_PATH_STA               := ""
+WIFI_DRIVER_FW_PATH_AP                 := ""
+WIFI_DRIVER_FW_PATH_P2P               := ""
+WIFI_DRIVER_FW_PATH_PARAM         := ""
+endif
+# UNITE is a virtual device support both atheros and realtek wifi(ar6103 and rtl8723as)
+#BOARD_WLAN_DEVICE            := UNITE
+#BOARD_WLAN_DEVICE            := realtek
+#WPA_SUPPLICANT_VERSION			 := VER_0_8_X
+#WPA_SUPPLICANT_VERSION       := VER_0_8_UNITE
+TARGET_KERNEL_MODULES        := \
+kernel_imx/drivers/net/wireless/rtl8192eu/8192eu.ko:system/lib/modules/8192eu.ko \
+kernel_imx/drivers/bluetooth/rtk_btusb.ko:system/lib/modules/rtk_btusb.ko \
+kernel_imx/net/wireless/cfg80211.ko:system/lib/modules/cfg80211.ko
+BOARD_WPA_SUPPLICANT_DRIVER  := NL80211
+BOARD_HOSTAPD_DRIVER         := NL80211
+```
+3. 相关宏解释  
+    BOARD_WIFI_VENDOR := realtek  
+    为了和其它厂商的芯片区别开定义的这个宏  
 
-		NL80211是wpa_supplicant和hostapd跟驱动通信的接口  
-		lib_driver_cmd_rtl作为私有库   
+    WPA_SUPPLICANT_VERSION := VER_0_8_X  
+    JB 使用的是wpa_supplicant_8  
 
-		WIFI_DRIVER_MODULE_NAME  
-		WIFI_DRIVER_MODULE_PATH  
-		WIFI_DRIVER_MODULE_ARG  
-		这三个宏是给libhardware_legacy (wifi.c/wifi_realtek.c)用来插入和卸载模块  
-	4. init.xxx.rc(device/fsl/imx6/etc/init.rc)  
+    BOARD_WPA_SUPPLICANT_DRIVER := NL80211  
+    BOARD_WPA_SUPPLICANT_PRIVATE_LIB := lib_driver_cmd_ rtl  
+    BOARD_HOSTAPD_DRIVER := NL80211  
+    BOARD_HOSTAPD_PRIVATE_LIB := lib_driver_cmd_rtl  
 
-![wpa](./pngs/wpa.png)
+    NL80211是wpa_supplicant和hostapd跟驱动通信的接口  
+    lib_driver_cmd_rtl作为私有库   
 
-![dhcpd](./pngs/dhcpd.png)
+    WIFI_DRIVER_MODULE_NAME  
+    WIFI_DRIVER_MODULE_PATH  
+    WIFI_DRIVER_MODULE_ARG  
+    这三个宏是给libhardware_legacy (wifi.c/wifi_realtek.c)用来插入和卸载模块  
+4. init.xxx.rc(device/fsl/imx6/etc/init.rc)
 
-	5. 其它设置device.mk  
-	设置wifi.interface  
-	PRODUCT_PROPERTY_OVERRIDES += \  
-	wifi.interface=wlan0  
+```shell
+service rtw_suppl_con /system/bin/wpa_supplicant \
+    -ip2p0 -Dnl80211 -c /data/misc/wifi/p2p_supplicant.conf
+    -e/data/misc/wifi/entropy.bin -N \
+    -iwlan0 -Dnl80211 -c/data/misc/wifi/wpa_supplicant.conf
+    class main
+    socket wpa_wlan0 dgram 660 wifi wifi
+    disabled
+    oneshot
 
-	添加android.hardware.wifi.direct.xml
-	如果想要使用Wi-Fi Direct (P2P) 功能  
-	PRODUCT_COPY_FILES += \  
-	frameworks/native/data/etc/android.hardware.wifi.direct.xml\
-	:system/etc/permissions/android.hardware.wifi.direct.xml  
-	需要确保开启了STA+P2P concurrent mode  
-	5. 系统资源配置  
-	板级相关的资源  
-	device/fsl/sabresd_6dq/overlay/frameworks/base/core/res/res/values/config.xml  
-	全局相关的资源  
-	frameworks/base/core/res/res/values/config.xml  
-	网络属性
+service rtw_suppl /system/bin/wpa_supplicant -iwlan0 -Dnl80211 \ 
+    -c/data/misc/wifi/wpa_supplicant.conf
+    socket wpa_wlan0 dgram 660 wifi wifi
+    class main
+    disabled
+    oneshot
+```
 
-	![netattr](./pngs/netattr.png)
+```shell
+service dhcpcd_wlan0 /system/bin/dhcpcd -ABKL
+    class main
+    disabled
+    oneshot
 
-	广播属性
+service dhcpcd_p2p /system/bin/dhcpcd -ABKL
+    class main
+    disabled
+    oneshot
+```
+5. 其它设置device.mk  
+    设置wifi.interface
 
-	![radioattr](./pngs/radioattr.png)
+    PRODUCT_PROPERTY_OVERRIDES += wifi.interface=wlan0
 
-	config_tether_wifi_regexs
+    添加android.hardware.wifi.direct.xml
+    如果想要使用Wi-Fi Direct (P2P) 功能  
+    PRODUCT_COPY_FILES += \  
+    frameworks/native/data/etc/android.hardware.wifi.direct.xml\
+    :system/etc/permissions/android.hardware.wifi.direct.xml  
+    需要确保开启了STA+P2P concurrent mode  
+6. 系统资源配置
+- 板级相关的资源
 
-	![regex](./pngs/regex.png)
+device/fsl/sabresd_6dq/overlay/frameworks/base/core/res/res/values/config.xml
 
-	config_tether_upstream_types
+- 全局相关的资源
 
-	![upstream](./pngs/upstream.png)
+frameworks/base/core/res/res/values/config.xml
 
-	libhardware_legacy
+7. 属性配置
+- 网络属性
 
-	![legacy](./pngs/legacy.png)
+```shell
+    <string-array translatable="false" name="networkAttributes">
+        <item>"wifi,1,1,1,-1,true"</item>
+        <item>"wifi_p2p,13,1,0,-1,true"</item>
+```
 
-	6. Android JB 驱动配置  
-	STA/AP – Switch between STA and AP mode  
-	(STA+P2P)/AP – Switch between STA+P2P concurrent and AP mode  
+- 广播属性
+```shell
+    <string-array translatable="false" name="radioAttributes">
+        <item>"1,1"</item>
+    </string-array>
+```
 
-	![marcro](./pngs/MACRO.png)
+- config_tether_wifi_regexs
+
+```shell
+    <string-array translatable="false" name="config_tether_wifi_regexs">
+      <item>"wlan0"</item>
+    </string-array>
+```
+
+7. Android JB 驱动配置
+- STA/AP – Switch between STA and AP mode
+- (STA+P2P)/AP – Switch between STA+P2P concurrent and AP mode
+
+![marcro](./pngs/MACRO.png)
 
 - FAQ  
 	1. Wi-Fi 无法打开  
