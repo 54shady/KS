@@ -1135,6 +1135,83 @@ this is anormal line
 
 ## My Ubuntu <span id="ubuntu_id"></span>
 
+###opencv
+[原文http://my.oschina.net/u/1757926/blog/293976](http://my.oschina.net/u/1757926/blog/293976)
+
+- 先从sourceforge上下载OpenCV的源码
+
+[http://jaist.dl.sourceforge.net/project/opencvlibrary/opencv-unix/2.4.9/opencv-2.4.9.zip](http://jaist.dl.sourceforge.net/project/opencvlibrary/opencv-unix/2.4.9/opencv-2.4.9.zip)
+
+- 解压到任意目录
+
+    unzip opencv-2.4.9.zip
+
+- 进入源码目录，创建release目录
+
+    cd opencv-2.4.9
+
+    mkdir release
+
+- 可以看到在OpenCV目录下，有个CMakeLists.txt文件，需要事先安装一些软件
+
+    sudo apt-get install build-essential cmake libgtk2.0-dev pkg-config 
+python-dev python-numpy libavcodec-dev libavformat-dev libswscale-dev
+
+- 进入release目录，安装OpenCV是所有的文件都会被放到这个release目录下
+
+    cd release
+
+- cmake编译OpenCV源码，安装所有的lib文件都会被安装到/usr/local目录下
+
+    cmake -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE_INSTALL_PREFIX=/usr/local ..
+
+- 安装
+
+    sudo make install
+
+- 测试，在某个目录下建立一个test.cpp文件
+
+```c
+#include <cv.h>
+#include <highgui.h>
+
+using namespace cv;
+
+int main(int argc, char* argv[])
+{
+    Mat image;
+    image = imread(argv[1], 1);
+
+    if (argc != 2 || !image.data)
+    {
+        printf("No image data\n");
+        return -1;
+    }
+
+    namedWindow("Display Image", CV_WINDOW_AUTOSIZE);
+    imshow("Display Image", image);
+    waitKey(0);
+    return 0;
+}
+```
+
+- 写一个cmake的makefile，叫CMakeLists.txt
+
+```makefile
+project(test)  
+find_package(OpenCV REQUIRED)  
+add_executable(test test)  
+target_link_libraries(test ${OpenCV_LIBS})  
+cmake_minimum_required(VERSION 2.8)
+```
+
+- 编译+运行  
+cmake .  
+make  
+得到可执行文件test
+
+- 随便弄个jpg图片做个测试，注意要和上面那个可执行文件放在同一目录下面,我这里名字取的是test.jpg
+
 ###terminator  
 配置terminator使用solarized配色  
 
