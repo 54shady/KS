@@ -17,6 +17,7 @@
 [FEC](#fec_id)  
 [WIFI](#wifi_id)  
 [IMX6](#imx6_id)
+[OpenCV](#opencv_id)
 
 ##	EMMC <span id="EMMC_ID"></span>
 
@@ -1135,7 +1136,7 @@ this is anormal line
 
 ## My Ubuntu <span id="ubuntu_id"></span>
 
-###opencv
+###opencv for PC ubuntu  
 [原文http://my.oschina.net/u/1757926/blog/293976](http://my.oschina.net/u/1757926/blog/293976)
 
 - 先从sourceforge上下载OpenCV的源码
@@ -1726,3 +1727,87 @@ set bootargs console=ttymxc0,115200 init=/init video=mxcfb0:dev=ldb,
 LDBXGA,if=RGB24,bpp=18 ldb=sin0 video=mxcfb1:off video=mxcfb2:off 
 fbmem=10M fb0base=0x27b00000 vmalloc=400M 
 androidboot.console=ttymxc0 androidboot.hardware=freescale
+
+## OpenCV for zedboard <span id="opencv_id"></span>  
+### opencv for zedboard  
+[参考文章http://www.eefocus.com/sj229335457/blog/13-06/295352_ad954.html](http://www.eefocus.com/sj229335457/blog/13-06/295352_ad954.html)  
+unzip opencv-2.4.9.zip  
+cd opencv-2.4.9  
+mkdir build install  
+
+cat toolchain.cmake  
+set(CMAKE_SYSTEM_NAME Linux)  
+set(CMAKE_SYSTEM_PROCESSOR arm)  
+set(CMAKE_C_COMPILER /home/mobz/CodeSourcery/
+Sourcery_CodeBench_Lite_for_Xilinx_GNU_Linux/bin/
+arm-xilinx-linux-gnueabi-gcc)  
+set(CMAKE_CXX_COMPILER /home/mobz/CodeSourcery/
+Sourcery_CodeBench_Lite_for_Xilinx_GNU_Linux/bin/
+arm-xilinx-linux-gnueabi-g++)
+
+cd build/  
+cmake -D CMAKE_TOOLCHAIN_FILE=toolchain.cmake -D CMAKE_INSTALL_PREFIX=
+/home/mobz/xlnx/opencv/opencv-2.4.9/install ../
+
+ccmake ./  
+配置的内容是所有的以WITH开头的选项全部选成OFF，(除了WITH_V4L选为ON)
+因为这些需要第三方库支持的，要是选择这些的话就需要安装第三方库了  
+make  
+make install  
+
+cat edge_detection.cpp
+
+```c
+#include "cv.h"
+#include "highgui.h"
+
+IplImage* doCanny(
+		IplImage* in,
+		double    lowThresh,
+		double    highThresh,
+		double    aperture)
+{
+	if (in->nChannels != 1)
+		return(0); // Canny only handles gray scale images
+	IplImage* out = cvCreateImage( 
+			cvGetSize( in ),
+			in->depth, //IPL_DEPTH_8U,    
+			1);
+	cvCanny( in, out, lowThresh, highThresh, aperture );
+	return( out );
+};
+
+int main( int argc, char** argv )
+{
+	if(argc!= 3)
+		printf("arguments error! format origin_image.bmp target_image.bmp\n");
+	IplImage* img_rgb = cvLoadImage( argv[1] );
+	IplImage* img_gry = cvCreateImage(
+			cvSize( img_rgb->width,img_rgb->height ), img_rgb->depth, 1);
+
+	cvCvtColor(img_rgb, img_gry ,CV_BGR2GRAY);
+	// cvNamedWindow("Example Gray", CV_WINDOW_AUTOSIZE );
+	// cvNamedWindow("Example Canny", CV_WINDOW_AUTOSIZE );
+	// cvShowImage("Example Gray", img_gry );
+	IplImage* img_cny = doCanny( img_gry, 10, 100, 3 );
+	if(cvSaveImage(argv[2],img_cny,0)!=0)
+		printf("Save Image Successful\n");
+	// cvShowImage("Example Canny", img_cny );
+	// cvWaitKey(0);
+	cvReleaseImage( &img_rgb);
+	cvReleaseImage( &img_gry);
+	cvReleaseImage( &img_cny);
+	// cvDestroyWindow("Example Gray");
+	// cvDestroyWindow("Example Canny");
+	return 0;
+}
+```
+
+arm-xilinx-linux-gnueabi-g++
+-I/home/mobz/xlnx/opencv/opencv-2.4.9/install/include
+-I/home/mobz/xlnx/opencv/opencv-2.4.9/install/include/opencv
+-L/home/mobz/xlnx/opencv/opencv-2.4.9/install/lib
+-lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_ml
+-lopencv_video -lopencv_features2d -lopencv_calib3d -lopencv_objdetect
+-lopencv_contrib -lopencv_legacy -lopencv_flann -lopencv_photo -lopencv_gpu
+-lopencv_nonfree ./edge_detection.cpp -o ./edge_detection.o
