@@ -1022,6 +1022,37 @@ md.b 27b00000 100
 制作一个24bpp的BMP文件  
 jpegtopnm logo.jpg | ppmquant 31 | ppmtobmp -bpp 24 > logo.bmp  
 
+在IMX6DL上使用型号LP101WX2(1280x800)的LCD屏添加uboot logo  
+之前的图片烧写后一直无法正常显示，发现是烧写的图片问题  
+正确做法是取一张1280x800的JPG图片使用了一个图片转换工具
+将其转换为1280x800的真彩BMP图片
+
+![uboot logo make](./pngs/uboot_logo_pic.png)
+
+mx6dl_sabresd.h里的配置如下
+
+```c
+#ifdef IPU_OUTPUT_MODE_LVDS
+	#define DISPLAY_WIDTH	1280
+	#define DISPLAY_HEIGHT	800
+	#define DISPLAY_BPP	24
+	#define DISPLAY_IF_BPP	24  //RGB24 interface
+
+	#define DISPLAY_HSYNC_START 32	 //twh
+	#define DISPLAY_HSYNC_END	48	//thfp
+	#define DISPLAY_HSYNC_WIDTH	80	//thbp
+
+	#define DISPLAY_VSYNC_START	6	//twv
+	#define DISPLAY_VSYNC_END	2	 //tvfp
+	#define DISPLAY_VSYNC_WIDTH	15 //tvbp
+```
+
+uboot bootargs:  
+bootargs=console=ttymxc0,115200 init=/init
+video=mxcfb0:dev=ldb,LDBXGA,if=RGB24,bpp=18 ldb=sin0
+video=mxcfb1:off video=mxcfb2:off fbmem=10M fb0base=0x27b00000 
+vmalloc=400M androidboot.console=ttymxc0 androidboot.hardware=freescale
+
 ##QEMU <span id="qemu_id"></span>
 
 启动QEMU：
