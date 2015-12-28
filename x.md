@@ -824,6 +824,140 @@ make distclean:
 
 ## MISC <span id="misc_id"></span>
 
+###C调用C++
+[参考文章http://blog.csdn.net/caspiansea/article/details/9676153](http://blog.csdn.net/caspiansea/article/details/9676153)
+
+有如下一个名为APPLE的C++模块  
+apple.h  
+```C
+#ifndef __APPLE_H__
+#define __APPLE_H__
+class Apple
+{
+	public:
+		enum
+		{
+			APPLE_COLOR_RED,
+			APPLE_COLOR_BLUE,
+			APPLE_COLOR_GREEN,
+		};
+
+		Apple();
+		int GetColor(void);
+		void SetColor(int color);
+
+	private:
+		int m_nColor;
+};
+#endif
+```
+
+apple.cpp:  
+```C
+#include "apple.h"
+Apple::Apple():m_nColor(APPLE_COLOR_RED)
+{
+}
+
+void Apple::SetColor(int color)
+{
+	m_nColor = color;
+}
+
+int Apple::GetColor(void)
+{
+	return m_nColor;
+}
+```
+
+想要在C模块中使用这个C++的模块  
+需要给这个模块封装一个C可调用的接口(wapper)  
+
+AppleWrapper.h:  
+```C
+#ifndef _APPLE_WRAPPER_H__
+#define _APPLE_WRAPPER_H_
+struct tagApple;
+#ifdef __cplusplus
+extern "C" {
+#endif
+	struct tagApple *GetInstance(void);
+	void ReleaseInstance(struct tagApple **ppInstance);
+	extern void SetColor(struct tagApple *pApple, int color);
+	extern int GetColor(struct tagApple *pApple);
+#ifdef __cplusplus
+};
+#endif
+#endif
+```
+
+AppleWrapper.cpp: 
+```C
+#include "AppleWrapper.h"
+#include "apple.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+	struct tagApple
+	{
+		Apple apple;
+	};
+	struct tagApple *GetInstance(void)
+	{
+		return new struct tagApple;
+	}
+
+	void ReleaseInstance(struct tagApple **ppInstance)
+	{
+		delete *ppInstance;
+		*ppInstance = 0;
+	}
+
+	void SetColor(struct tagApple *pApple, int color)
+	{
+		pApple->apple.SetColor(color);
+	}
+
+	int GetColor(struct tagApple *pApple)
+	{
+		return pApple->apple.GetColor();
+	}
+#ifdef __cplusplus
+};
+#endif
+```
+
+在main.c中调用:  
+```C
+#include "AppleWrapper.h"
+#include <stdio.h>
+
+int main(int argc, char **argv)
+{
+	struct tagApple * pApple;
+	int color;
+
+	pApple= GetInstance();
+
+	SetColor(pApple, 1);
+	color = GetColor(pApple);
+	printf("color = %d\n", color);
+
+	SetColor(pApple, 9);
+	color = GetColor(pApple);
+	printf("color = %d\n", color);
+
+	ReleaseInstance(&pApple);
+
+	return 0;
+}
+```
+
+使用：  
+g++ \*.c \*.cpp  
+./a.out  
+
 ###vim
 vim删除空行
 :g/^$/d
