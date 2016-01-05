@@ -119,7 +119,8 @@ Partition     Start Sector     Num Sectors     Type
     7              2146305           16383      83  
     8              2162689           16383      83  
 
-分析烧写工具里脚本知道：boot.img烧写到了p1分区，对应UBOOT里的就是16384这个起始地址，转换为16进制就是4000  
+分析烧写工具里脚本知道：  
+boot.img烧写到了p1分区,对应UBOOT里的就是16384这个起始地址,转换为16进制就是4000  
 
     dd if=$FILE of=/dev/mmcblk0p1  
 
@@ -331,7 +332,8 @@ MX6SDL SABRESD U-Boot > md.b 0x10800000 2000
 /devices/platform/sdhci-esdhc-imx.1/mmc_host/mmc2 /mnt/extsd vfat defaults voldmanaged=sdcard:auto      //SDCARD  
 /devices/platform/fsl-ehci /mnt/udisk vfat defaults voldmanaged=sdcard:auto                             //UDISK  
 /dev/block/mmcblk0p5    /system      ext4    ro                                                                wait  
-/dev/block/mmcblk0p4    /data        ext4    nosuid,nodev,nodiratime,noatime,nomblk_io_submit,noauto_da_alloc,errors=panic   wait,encryptable=footer  
+/dev/block/mmcblk0p4    /data        ext4    nosuid,nodev,nodiratime,noatime,nomblk_io_submit,noauto_da_alloc,errors=panic  
+wait,encryptable=footer  
 /dev/block/mmcblk0p6    /cache       ext4    nosuid,nodev,nomblk_io_submit                                             wait  
 /dev/block/mmcblk0p7    /device      ext4    ro,nosuid,nodev                                                           wait  
 /dev/block/mmcblk0p1    /boot        emmc    defaults                                                                defaults  
