@@ -437,6 +437,11 @@ exit $STATUS
     dd if=boot.img of=/dev/block/mmcblk0p1;sync  
 
 方法2使用mmc write  
+
+可以使用下面的方法  
+
+    mmc dev 3 1;mmc write 10800400 2 400;reset
+
 可先做个试验：  
 1.先切换到bootloader分区
 
@@ -448,7 +453,7 @@ exit $STATUS
 
 这里的381是通过下载的时候算的
 
-3.在把uboot下载到中
+3.在把uboot下载到DDR中
 
 loady  //通过串口发送过去  默认地址是10800000
 
@@ -466,17 +471,21 @@ loady  //通过串口发送过去  默认地址是10800000
    	10800400:	我们用loady 把uboot下载到（默认）地址是10800000  
 		我们烧写的时候跳过了uboot的前1KB的大小  
  	2:	表示我们跳过emmc里的前1KB大小  
-    318:	是我下载的时候看到的UBOOT的大小算出来的    
+    318:	是我下载的时候看到的UBOOT的大小算出来的,可以多烧  
 用loady下载uboot到DDR中，默认下载地址是环境变量指定的，可以手工指定  
   
-MX6SDL SABRESD U-Boot > loady  
-## Ready for binary (ymodem) download to 0x10800000 at 115200 bps...  
-C  
-Starting ymodem transfer.  Press Ctrl+C to cancel.  
-  100%     448 KB    3 KB/s 00:02:01       0 Errors  
-  
-xyzModem - CRC mode, 3594(SOH)/0(STX)/0(CAN) packets, 3 retries  
-## Total Size      = 0x00070388 = 459656 Bytes       //最总的大小是 459656 Byte = 897 * 512 Byte = 897个cnt 默认 1个cnt 是512 Byte, 897 == 0x381 (十进制转十六进制)  
+```shell
+MX6SDL SABRESD U-Boot > loady
+## Ready for binary (ymodem) download to 0x10800000 at 115200 bps...
+C
+Starting ymodem transfer.  Press Ctrl+C to cancel.
+  100%     448 KB    3 KB/s 00:02:01       0 Errors
+
+xyzModem - CRC mode, 3594(SOH)/0(STX)/0(CAN) packets, 3 retries
+## Total Size      = 0x00070388 = 459656 Bytes
+```
+
+最总的大小是459656 Byte = 897 * 512 Byte = 897个cnt默认1个cnt是512Byte, 897==0x381 (十进制转十六进制)
 
 有下表可以知道bootloader位于1KB的偏移量开始的地方 1KB = 1024Byte = 2blk  默认1个blk事512Byte  
 所以读u-boot 是mmc read 10800000 2 100  这里的2是这么算出来的  
@@ -823,6 +832,29 @@ make distclean:
     make O=`pwd`/out/target/product/sabresd_6dq/obj/KERNEL savedefconfig
 
 ## MISC <span id="misc_id"></span>
+
+###sshd error  
+could not load host key : /etc/ssh/ssh_host_dsa_key
+could not load host key : /etc/ssh/ssh_host_rsa_key
+ssh-keygen -t dsa -f /etc/ssh/ssh_host_dsa_key
+ssh-keygen -t rsa -f /etc/ssh/ssh_host_rsa_key
+
+###gentoo  
+mount:  
+mount /dev/sda4 /mnt/gentoo
+mount /dev/sda2 /mnt/gentoo/boot
+
+chroot:  
+chroot /mnt/gentoo /bin/bash && source /etc/profile && export PS1="(chroot) $PS1"
+
+
+添加开机启动项(sshd)  
+rc-update add sshd boot  
+
+查看开机启动项  
+rc-update show  
+
+
 
 ###C调用C++
 [参考文章http://blog.csdn.net/caspiansea/article/details/9676153](http://blog.csdn.net/caspiansea/article/details/9676153)
@@ -1300,6 +1332,9 @@ this is anormal line
 空格+空格+回车换行，所以在每行最后需要有两个空格    
 
 ## My Ubuntu <span id="ubuntu_id"></span>
+
+###xchm for ubuntu
+sudo aptitude install xchm
 
 ###opencv for PC ubuntu  
 [原文http://my.oschina.net/u/1757926/blog/293976](http://my.oschina.net/u/1757926/blog/293976)
