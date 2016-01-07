@@ -1335,6 +1335,18 @@ this is anormal line
 
 ## My Ubuntu <span id="ubuntu_id"></span>
 
+### 翻墙  
+sudo apt-get install miredo  
+ifconfig应该能看到一个叫teredo的虚拟网卡  
+sudo apt-get install ndisc6  
+sudo apt-get install gw6c  
+gw6c 源  
+deb http://cz.archive.ubuntu.com/ubuntu precise main universe  
+
+测试下  
+ping6 ipv6.google.com  
+
+
 ###xchm for ubuntu
 sudo aptitude install xchm
 
