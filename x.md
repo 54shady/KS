@@ -1335,6 +1335,9 @@ this is anormal line
 
 ## My Ubuntu <span id="ubuntu_id"></span>
 
+###desktop record for linux  
+sudo apt-get install kazam
+
 ### 翻墙  
 sudo apt-get install miredo  
 ifconfig应该能看到一个叫teredo的虚拟网卡  
