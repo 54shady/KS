@@ -1343,7 +1343,7 @@ this is anormal line
 grub rescue>的命令行下  
 [grub rescue:http://jingyan.baidu.com/article/c85b7a640cd7d6003bac95f8.html](http://jingyan.baidu.com/article/c85b7a640cd7d6003bac95f8.html)  
 
-msdos13是安装了grub的地方:  
+msdos11是安装了grub的地方:  
 set root=(hd0,msdos11)/grub  
 set prefix=(hd0,msdos11)/grub  
 insmod normal  
