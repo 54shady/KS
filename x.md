@@ -1335,6 +1335,44 @@ this is anormal line
 
 ## My Ubuntu <span id="ubuntu_id"></span>
 
+### grub rescue && update-grub  
+在WIN7和ubuntu双系统中想再装一个别的系统  
+在WIN7下用分区工具将一个分区重新分割后  
+发现无法进入ubuntu了,此时需要重新修复grub2  
+因为当选择启动ubuntu的时候发现进入到了  
+grub rescue>的命令行下  
+[grub rescue:http://jingyan.baidu.com/article/c85b7a640cd7d6003bac95f8.html](http://jingyan.baidu.com/article/c85b7a640cd7d6003bac95f8.html)  
+
+msdos13是安装了grub的地方:  
+set root=(hd0,msdos11)/grub  
+set prefix=(hd0,msdos11)/grub  
+insmod normal  
+normal  
+
+[修复grub2:http://www.cnblogs.com/RigorosLee/archive/2011/03/23/1992422.html](http://www.cnblogs.com/RigorosLee/archive/2011/03/23/1992422.html)  
+
+以root身份执行下面的操作:  
+挂载根分区到/mnt下:  
+```shell
+mount /dev/sdaN /mnt
+```
+其中sdaN是指根分区  
+挂载boot分区到/mnt/boot下:  
+如果boot单独分到另外一个分区的话还需要挂在boot分区 
+```shell
+mount /dev/sdaM /mnt/boot
+```
+其中sdaM是boot分区  
+安装grub  
+```shell
+grub-install --root-directory=/mnt /dev/sda
+```
+
+更新下grub配置文件  
+```shell
+update-grub  
+```
+
 ###desktop record for linux  
 sudo apt-get install kazam
 
