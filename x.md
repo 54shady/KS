@@ -1335,6 +1335,90 @@ this is anormal line
 
 ## My Ubuntu <span id="ubuntu_id"></span>
 
+###在ubuntu上装gentoo 共用boot和swap分区  
+[参考文章http://www.tecmint.com/run-linux-live-images-from-hard-disk-in-linux/](http://www.tecmint.com/run-linux-live-images-from-hard-disk-in-linux/)  
+[参考文章http://tieba.baidu.com/p/3868674131#](http://tieba.baidu.com/p/3868674131#)  
+[gentoo amd64 install](https://wiki.gentoo.org/wiki/Handbook:AMD64/Full/Installation)  
+
+我电脑上的系统是先装的WIN7再装的ubuntu  
+然后在ubuntu的基础上装的gentoo  
+最终三个系统都能正常使用  
+怎么在WIN7的基础上装ubuntu不是这里要涉及的  
+这里主要讲解如何在ubuntu的基础上来装gentoo  
+
+先下载好相应的文件:  
+install-amd64-minimal-20150924.iso  
+portage-20151227.tar.xz  
+stage3-amd64-20150924.tar.bz2  
+
+因为已经有了ubuntu，分区如下：  
+/dev/sda8 是ubuntu的 / ext4类型  
+/dev/sda11 是boot  ext4 我装ubuntu的时候单独挂载的,要和gentoo共用这个分区  
+/dev/sda9 是ubuntu 的home分区  应该也可以共用,这里没有这样操作  
+/dev/sda10 是swap分区  
+/dev/sda5  windows的D盘  
+/dev/sda6  windows的E盘  
+/dev/sda7  预留作为gentoo的/分区  
+
+安装的步骤其是按照官网安装的只是需要修改相应的分区和grub配置即可  
+先需要设置ubuntu的grub2,添加一个启动项来进入到gentoo的livecd里  
+在ubuntu里切换到root用户,在/下创建live文件夹  
+把install-amd64-minimal-20150924.iso拷贝到live下  
+
+修改ubuntu里/etc/grub.d/40_custom 添加如下内容  
+/dev/sda8是ubuntu的/目录,我把ISO放到了该目录的live下  
+因为ISO里gentoo和gentoo.igz是在isolinux文件夹下  
+所以这里写的是isolinux/  
+```shell
+menuentry 'Gentoo minimal ISO' --class os --class gnu-linux --class gnu --class os --group group_main {
+        set isofile="/live/install-amd64-minimal-20150924.iso"
+        loopback loop (hd0,msdos8)$isofile
+        linux (loop)/isolinux/gentoo root=/dev/ram0 init=/linuxrc dokeymap looptype=squashfs loop=/image.squashfs cdroot initrd=/boot/gentoo.igz isoboot=$isofile
+        initrd (loop)/isolinux/gentoo.igz
+}
+```
+安装关键步骤参考：  
+
+1. 开启swap分区,挂载gentoo的/和共用的boot分区  
+```shell
+swapon /dev/sda10
+mkfs.ext4 /dev/sda7
+mount /dev/sda7 /mnt/gentoo
+mkdir -p /mnt/gentoo/boot
+mount /dev/sda11 /mnt/gentoo/boot
+```
+
+2. 事先已经在ubuntu上把stage3和portage的包下载好了  
+只要挂载相应的分区就可以了(不做过多描述)  
+
+3. 修改/mnt/gentoo/etc/portage/make.conf添加如下内容  
+```shell
+GENTOO_MIRRORS="http://mirrors.sohu.com/gentoo/ http://mirrors.163.com/gentoo/ "
+SYNC="rsync://mirrors.163.com/gentoo-portage"
+MAKEOPTS="-j8" 
+```
+
+fstab内容:  
+```shell
+/dev/sda11   /boot        ext4    defaults,noatime     0 2
+/dev/sda10   none         swap    sw                   0 0
+/dev/sda7   /            ext4    noatime              0 1
+```
+
+其他没有涉及到的内容都是按照官网装就可以了  
+因为是共用boot分区,所以先把/boot/grub/grub.cfg保存一份  
+之后就可以配置grub2了  
+注意这里不需要再次按照grub到/dev/sda里了  
+因为安装ubuntu的时候就已经在/boot里安装好了  
+所以这了只要配置即可  
+emerge --ask sys-boot/grub
+之后修要在/etc/grub.d/40_custom里添加ubuntu的启动选项  
+直接把之前/boot/grub/grub.cfg里ubuntu和win7的启动内容  
+拷贝到40_custom里就可以了  
+
+然后再次生成新的grub.cfg  
+grub2-mkconfig -o /boot/grub/grub.cfg  
+
 ### grub rescue && update-grub  
 在WIN7和ubuntu双系统中想再装一个别的系统  
 在WIN7下用分区工具将一个分区重新分割后  
