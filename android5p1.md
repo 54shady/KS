@@ -1,7 +1,43 @@
+[myled](#MYLED_ID)  
 [lan8720](#LAN8720_ID)  
 [Codec](#CODEC_ID)  
 [LVDS](#LVDS_ID)  
 [TouchPanel](#TP_ID)  
+
+##	myled <span id="MYLED_ID"></span>  
+一个简单的GPIO控制LED点灯的驱动,只是为了使用DT  
+先看下原理图  
+![myled1](./pngs/L5/myled1.png)
+![myled2](./pngs/L5/myled2.png)
+
+代码如下所示:
+
+首先在DT的根下添加给驱动使用的节点  
+其中包行要用到的GPIO，可由原理图看出来    
+```shell
+/ {
+	myled {
+		compatible = "myled";
+		pinctrl-names = "myled_pin";
+		pinctrl-0 = <&myled_pin_lable>;
+		gpios = <&gpio1 2 GPIO_ACTIVE_LOW>;
+	};
+};
+```
+
+上面使用到的PIN脚的描述,主要是MUX和SETTINGS
+添加在 imx6qdl-sabresd 这个节点下
+```shell
+myled_pin_lable: myled_pin {
+	fsl,pins = <MX6QDL_PAD_GPIO_2__GPIO1_IO02 0x80000000>;
+};
+```
+从原理图可以看出我们需要把PIN脚GPIO_2设置成GPIO功能脚  
+IMX6内部只能把这个管脚MUX成第一组GPIO里的第二个  
+即这里的宏表示的GPIO1_IO2,上面的gpio1 2 也就是表示这个    
+然后还要设置GPIO的属性0x80000000  
+
+[代码参考见https://github.com/54shady/KS/tree/master/codes](https://github.com/54shady/KS/tree/master/codes)
 
 ##	Lan8720 <span id="LAN8720_ID"></span>  
 [参考文章https://community.freescale.com/thread/360037](https://community.freescale.com/thread/360037).
