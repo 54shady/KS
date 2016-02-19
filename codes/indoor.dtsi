@@ -9,8 +9,6 @@
 	
 	myled {
 		compatible = "myled";
-		pinctrl-names = "myled_pin";
-		pinctrl-0 = <&myled_pin_lable>;
 		gpios = <&gpio1 2 GPIO_ACTIVE_LOW>;
 	};
 };
