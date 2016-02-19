@@ -19,7 +19,7 @@
 	};
 
 	pinctrl_myts_rst: gt9xx_rst {
-		fsl,pins = <MX6QDL_PAD_CSI0_MCLK__GPIO5_IO19 0x80000000>;
+		fsl,pins = <MX6QDL_PAD_CSI0_MCLK__GPIO5_IO19 0x8020>;
 	};
 };
 

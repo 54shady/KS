@@ -20,13 +20,15 @@ static struct my_ts_data *gt9xx_ts_parse_devtree(struct i2c_client *client)
 		return ERR_PTR(-ENOMEM);  
 	}  
 
-	pdata->rst_pin = of_get_gpio(node, 0);  
+	/* pinctrl-1 */
+	pdata->rst_pin = of_get_gpio(node, 1);  
 	if (gpio_is_valid(pdata->rst_pin))
 		printk("myts rst pin valid\n");
 	else
 		printk("myts rst pin not valid\n");
 
-	pdata->int_pin = of_get_gpio(node, 1);  
+	/* pinctrl-0 */
+	pdata->int_pin = of_get_gpio(node, 0);  
 	if (gpio_is_valid(pdata->int_pin))
 		printk("myts int pin valid\n");
 	else
