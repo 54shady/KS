@@ -1,8 +1,30 @@
+[ov5640_mipi](#OV5640_MIPI_ID)  
 [myled](#MYLED_ID)  
 [lan8720](#LAN8720_ID)  
 [Codec](#CODEC_ID)  
 [LVDS](#LVDS_ID)  
 [TouchPanel](#TP_ID)  
+
+##	ov5640_mipi <span id="OV5640_MIPI_ID"></span>  
+在I2C1下添加DT配置如下  
+```shell
+ov564x_mipi: ov564x_mipi@3c {
+	compatible = "ovti,ov564x_mipi";
+	reg = <0x3c>;
+	clocks = <&clks 201>;
+	clock-names = "csi_mclk";
+	DOVDD-supply = <&vgen4_reg>; /* 1.8v */
+	AVDD-supply = <&vgen3_reg>;  /* 2.8v, rev C board is VGEN3
+									rev B board is VGEN5 */
+	DVDD-supply = <&vgen2_reg>;  /* 1.5v*/
+	pwn-gpios = <&gpio1 19 1>;   /* active low: SD1_CLK */
+	rst-gpios = <&gpio1 20 0>;   /* active high: SD1_DAT2 */
+	csi_id = <1>;
+	mclk = <24000000>;
+	mclk_source = <0>;
+};
+```
+[代码参考见https://github.com/54shady/KS/tree/master/codes](https://github.com/54shady/KS/tree/master/codes)
 
 ##	myled <span id="MYLED_ID"></span>  
 一个简单的GPIO控制LED点灯的驱动,只是为了使用DT  
