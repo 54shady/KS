@@ -35,29 +35,33 @@ ov564x_mipi: ov564x_mipi@3c {
 代码如下所示:
 
 首先在DT的根下添加给驱动使用的节点  
-其中包行要用到的GPIO，可由原理图看出来    
+其中包行要用到的GPIO,可由原理图看出来    
+这里用的是无名GPIO所以在驱动里是按INDEX来访问的
+```c
+of_get_gpio(node, index);
+```
 ```shell
 / {
 	myled {
 		compatible = "myled";
-		pinctrl-names = "myled_pin";
-		pinctrl-0 = <&myled_pin_lable>;
 		gpios = <&gpio1 2 GPIO_ACTIVE_LOW>;
 	};
 };
 ```
 
-上面使用到的PIN脚的描述,主要是MUX和SETTINGS
-添加在 imx6qdl-sabresd 这个节点下
+或者是用有名GPIO来操作  
 ```shell
-myled_pin_lable: myled_pin {
-	fsl,pins = <MX6QDL_PAD_GPIO_2__GPIO1_IO02 0x80000000>;
+/ {
+	myled {
+		compatible = "myled";
+		myled-gpios = <&gpio1 2 GPIO_ACTIVE_LOW>;
+	};
 };
 ```
-从原理图可以看出我们需要把PIN脚GPIO_2设置成GPIO功能脚  
-IMX6内部只能把这个管脚MUX成第一组GPIO里的第二个  
-即这里的宏表示的GPIO1_IO2,上面的gpio1 2 也就是表示这个    
-然后还要设置GPIO的属性0x80000000  
+驱动里用下面这个函数来获取  
+```c
+of_get_named_gpio(node, "myled-gpios", 0);
+```
 
 [代码参考见https://github.com/54shady/KS/tree/master/codes](https://github.com/54shady/KS/tree/master/codes)
 
