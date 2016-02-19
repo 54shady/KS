@@ -48,6 +48,12 @@
 	leds {
 		compatible = "gpio-leds";
 
+		charger-led {
+			gpios = <&gpio1 2 0>;
+			linux,default-trigger = "max8903-charger-charging";
+			retain-state-suspended;
+			status ="disabled";
+		};
 	};
 
 	memory: memory {
@@ -639,6 +645,7 @@
 				MX6QDL_PAD_GPIO_9__GPIO1_IO09 	0x80000000
 				MX6QDL_PAD_EIM_DA9__GPIO3_IO09 0x80000000
 				MX6QDL_PAD_GPIO_1__WDOG2_B 0x80000000
+           //     MX6QDL_PAD_GPIO_2__GPIO1_IO02 0x1b0b0
 				MX6QDL_PAD_NANDF_CS0__GPIO6_IO11 0x80000000
 				MX6QDL_PAD_NANDF_CS1__GPIO6_IO14 0x80000000
 				MX6QDL_PAD_NANDF_CS2__GPIO6_IO15 0x80000000
@@ -685,7 +692,6 @@
 				/* MX6QDL_PAD_GPIO_19__GPIO4_IO05             0x80000000  */
 			>;
 		};
-
 
 		pinctrl_gpio_keys: gpio_keysgrp {
 			fsl,pins = <
