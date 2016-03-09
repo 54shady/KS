@@ -1,9 +1,23 @@
+[device tree](#DEVICE_TREE_ID)  
 [ov5640_mipi](#OV5640_MIPI_ID)  
 [myled](#MYLED_ID)  
 [lan8720](#LAN8720_ID)  
 [Codec](#CODEC_ID)  
 [LVDS](#LVDS_ID)  
 [TouchPanel](#TP_ID)  
+
+##	device tree <span id="DEVICE_TREE_ID"></span>  
+编译内核的时候配置DEVICE TREE文件系统支持  
+配置下面这个宏既可在/proc/device-tree／下有DT的信息  
+Device Tree and Open Firmware support  
+CONFIG_PROC_DEVICETREE=y
+
+因为里面的信息是二进制形式的  
+所以需要用hexdump之类的工具来查看  
+可以把/proc/device-tree整个文件夹用adb pull全部拷贝出来之后  
+用dtc将其生成dts  
+adb pull /proc/device-tree .  
+dtc -I fs -O dts proc_device_tree/ -o output.dts
 
 ##	ov5640_mipi <span id="OV5640_MIPI_ID"></span>  
 在I2C1下添加DT配置如下  
