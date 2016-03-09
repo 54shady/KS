@@ -112,6 +112,13 @@ pinctrl_enet: enetgrp {
 };
 
 ```
+从下图中可以看出寄存器的起始地址和长度分别是  
+0x2188000~0x218BFFF  
+16KB=0x4000  
+所以DT里配置reg就是依据这里  
+reg = <0x02188000 0x4000>;  
+
+![寄存器配置](./pngs/L5/AIPS2.png)
 
 ![LAN8720原理图](./pngs/L5/LAN8720.png)
 
