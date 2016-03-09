@@ -7,6 +7,9 @@
 [TouchPanel](#TP_ID)  
 
 ##	device tree <span id="DEVICE_TREE_ID"></span>  
+
+[参考PDF Freescale Device tree AN5125.pdf](https://github.com/54shady/KS/tree/master/pdfs)  
+
 编译内核的时候配置DEVICE TREE文件系统支持  
 配置下面这个宏既可在/proc/device-tree／下有DT的信息  
 Device Tree and Open Firmware support  
@@ -18,6 +21,10 @@ CONFIG_PROC_DEVICETREE=y
 用dtc将其生成dts  
 adb pull /proc/device-tree .  
 dtc -I fs -O dts proc_device_tree/ -o output.dts
+
+对DT中ranges的说明看下图  
+
+![ranges property](./pngs/L5/ranges.png)
 
 ##	ov5640_mipi <span id="OV5640_MIPI_ID"></span>  
 在I2C1下添加DT配置如下  
@@ -43,7 +50,9 @@ ov564x_mipi: ov564x_mipi@3c {
 ##	myled <span id="MYLED_ID"></span>  
 一个简单的GPIO控制LED点灯的驱动,只是为了使用DT  
 先看下原理图  
+
 ![myled1](./pngs/L5/myled1.png)
+
 ![myled2](./pngs/L5/myled2.png)
 
 代码如下所示:
