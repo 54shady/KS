@@ -683,6 +683,8 @@ root@android:/ # tinycap /sdcard/test.wav
 用simg2img 工具把system.img 转为为ext4 文件格式,如果已经是EXT4格式的话就不需要这步  
 将EXT4格式的镜像挂在到一个目录下，该目录就是system里的东西  
 
+	out/host/linux-x86/bin/simg2img system.img system.ext4.img
+
     mount -t ext4 -o loop system.ext4.img  tmp_mount_dir
 
 
